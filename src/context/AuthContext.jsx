@@ -1,7 +1,7 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../lib/firebase/config'; 
+import { auth } from '../lib/firebase/config'; // Impor 'auth' yang mungkin undefined jika Env Vars gagal
 import { handleSignOut } from '../lib/firebase/auth'; 
 
 export const AuthContext = createContext({
@@ -19,16 +19,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // FIX: Hanya jalankan onAuthStateChanged jika 'auth' terdefinisi (berhasil diinisialisasi)
-    if (auth) {
+    // Safety check: Hanya jalankan onAuthStateChanged jika 'auth' terdefinisi
+    if (auth) { 
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         setCurrentUser(user);
         setLoading(false);
       });
       return () => unsubscribe();
     } else {
-      console.error("Firebase Auth object is undefined. Check Environment Variables.");
-      setLoading(false); // Biarkan aplikasi berjalan tanpa auth jika inisialisasi gagal
+      // Jika inisialisasi gagal (auth undefined), set loading=false 
+      // agar tampilan bisa dimuat dan error ditangani di konsol.
+      setLoading(false);
+      console.error("Firebase Auth object is undefined. Check Environment Variables in Vercel.");
     }
 
   }, []);
@@ -43,8 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {/* Tampilkan anak-anak hanya setelah loading selesai */}
-      {!loading && children} 
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
