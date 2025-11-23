@@ -1,8 +1,11 @@
 // src/pages/_app.js
-import '../styles/globals.css';
+
+// BARIS INI WAJIB ADA & DI ATAS untuk memuat Tailwind CSS
+import '../styles/globals.css'; 
 import { AuthProvider } from '../context/AuthContext'; 
 
 function MyApp({ Component, pageProps }) {
+ 
   return (
     <AuthProvider>
       <Component {...pageProps} />
