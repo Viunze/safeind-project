@@ -2,17 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Header from '../components/Header'; // Import Header baru
-import { useAuth } from '../context/AuthContext'; // Asumsi Anda menggunakan AuthContext
+import Header from '../components/Header'; 
+import { useAuth } from '../context/AuthContext'; 
 
 export default function Home() {
   const [query, setQuery] = useState('');
   const router = useRouter();
-  const { currentUser } = useAuth(); // Ambil status user
+  const { currentUser } = useAuth(); 
   
   const handleCheck = (e) => {
     e.preventDefault();
     if (query.trim()) {
+      // Redirect ke halaman cek dengan query
       router.push(`/check/${encodeURIComponent(query)}`);
     }
   };
@@ -21,13 +22,13 @@ export default function Home() {
     if (currentUser) {
       router.push('/report');
     } else {
-      router.push('/auth/login'); // Redirect ke login jika belum login
+      // Redirect ke login jika belum login
+      router.push('/auth/login'); 
     }
   };
 
   return (
     <div className="min-h-screen bg-dark-background text-white">
-      {/* HEADER (Menampilkan Logo SAFEIND dan Navigasi) */}
       <Header /> 
       
       <main className="max-w-6xl mx-auto p-8 pt-20">
@@ -39,7 +40,6 @@ export default function Home() {
             Platform pelapor & pengecek penipu online paling lengkap di Indo.
           </p>
 
-          {/* Kolom Cek Penipu */}
           <form onSubmit={handleCheck} className="flex max-w-lg mx-auto mb-10 bg-gray-700 rounded-xl shadow-lg border border-primary-neon/50">
             <input
               type="text"
@@ -57,7 +57,6 @@ export default function Home() {
             </button>
           </form>
 
-          {/* Tombol Aksi */}
           <div className="flex justify-center space-x-4">
             <button
               onClick={handleReportClick}
