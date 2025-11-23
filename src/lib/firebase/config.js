@@ -2,9 +2,9 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
-// Menggunakan Environment Variables dari Vercel
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  // PASTIKAN SEMUA MENGGUNAKAN NEXT_PUBLIC_
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, 
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
@@ -12,6 +12,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Inisialisasi Firebase
 export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app); // EXPORT AUTH di sini
+// PASTIKAN auth diekspor di sini
+export const auth = getAuth(app);
