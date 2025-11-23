@@ -1,69 +1,88 @@
 // src/pages/index.js
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import AppLayout from '../components/common/AppLayout';
-import Button from '../components/common/Button';
 
-const Home = () => {
+import { useState } from 'react';
+import { useRouter } from 'next/router';
+import Header from '../components/Header'; // Import Header baru
+import { useAuth } from '../context/AuthContext'; // Asumsi Anda menggunakan AuthContext
+
+export default function Home() {
   const [query, setQuery] = useState('');
   const router = useRouter();
-
-  const handleSearch = (e) => {
+  const { currentUser } = useAuth(); // Ambil status user
+  
+  const handleCheck = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      router.push(`/check/${encodeURIComponent(query.trim())}`);
+      router.push(`/check/${encodeURIComponent(query)}`);
+    }
+  };
+
+  const handleReportClick = () => {
+    if (currentUser) {
+      router.push('/report');
+    } else {
+      router.push('/auth/login'); // Redirect ke login jika belum login
     }
   };
 
   return (
-    <AppLayout>
-      <div className="text-center py-16 lg:py-24">
-        <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 text-white">
-          Cek & Laporkan Penipu <span className="text-neon-purple">Anti Ribet.</span>
-        </h1>
-        <p className="text-xl text-gray-400 mb-10">
-          Platform pelapor & pengecek penipu online paling lengkap di Indo.
-        </p>
+    <div className="min-h-screen bg-dark-background text-white">
+      {/* HEADER (Menampilkan Logo SAFEIND dan Navigasi) */}
+      <Header /> 
+      
+      <main className="max-w-6xl mx-auto p-8 pt-20">
+        <section className="text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
+            Cek & Laporkan Penipu Anti Ribet.
+          </h1>
+          <p className="text-lg text-gray-400 mb-12">
+            Platform pelapor & pengecek penipu online paling lengkap di Indo.
+          </p>
 
-        {/* Search Bar Besar */}
-        <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-10">
-          <div className="flex bg-black-primary border border-neon-blue/50 rounded-lg p-1 shadow-neon-lg">
+          {/* Kolom Cek Penipu */}
+          <form onSubmit={handleCheck} className="flex max-w-lg mx-auto mb-10 bg-gray-700 rounded-xl shadow-lg border border-primary-neon/50">
             <input
               type="text"
-              placeholder="Cek Nomor Rekening / Nomor HP / Username Penipu..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-grow p-4 text-lg bg-transparent focus:outline-none text-white placeholder-gray-500"
+              placeholder="Cek Nomor Rekening / Nomor HP / Username Penipu..."
+              className="flex-grow p-4 bg-transparent text-white placeholder-gray-400 focus:outline-none rounded-l-xl"
               required
             />
             <button
               type="submit"
-              className="bg-neon-blue hover:bg-neon-purple transition duration-300 text-black font-bold py-3 px-8 rounded-md"
+              className="px-6 py-4 bg-primary-neon text-white font-semibold rounded-r-xl hover:bg-blue-600 transition"
             >
               Cek Penipu
             </button>
+          </form>
+
+          {/* Tombol Aksi */}
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={handleReportClick}
+              className="flex items-center space-x-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-md"
+            >
+              <span role="img" aria-label="Lapor">🚨</span>
+              <span>Lapor Penipu Cepat</span>
+            </button>
+            <button
+              // Aksi Download PDF (fungsi placeholder)
+              className="flex items-center space-x-2 px-6 py-3 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700 transition shadow-md"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414L9 11.586V4a1 1 0 011-1z" clipRule="evenodd" />
+                <path d="M16 17a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 012 0v2h8v-2a1 1 0 012 0v2z" />
+              </svg>
+              <span>Download PDF</span>
+            </button>
           </div>
-        </form>
+        </section>
+      </main>
 
-        {/* 3 Tombol Cepat */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-          <Button 
-            variant="secondary" 
-            onClick={() => router.push('/report')}
-          >
-            🚨 Lapor Penipu Cepat
-          </Button>
-          {/* Nanti bisa disederhanakan/dihapus jika PDF hanya muncul setelah lapor */}
-          <Button 
-            variant="tertiary" 
-            onClick={() => alert('Fitur Download PDF membutuhkan ID Laporan.')}
-          >
-            📄 Download PDF
-          </Button>
-        </div>
-      </div>
-    </AppLayout>
+      <footer className="py-4 text-center text-gray-500 border-t border-gray-800 absolute bottom-0 w-full">
+        © 2025 SAFEIND. Aman Bersama Komunitas.
+      </footer>
+    </div>
   );
-};
-
-export default Home;
+}
