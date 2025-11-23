@@ -1,46 +1,110 @@
 // src/pages/auth/login.js
-import React from 'react';
+
+import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { signInWithGoogle } from '../../lib/firebase/auth'; // Import fungsi
+import { useAuth } from '../../context/AuthContext';
+// Impor fungsi login/signup/google dari library Firebase
+import { handleSignIn, handleSignUp, handleGoogleSignIn } from '../../lib/firebase/auth'; 
+import toast from 'react-hot-toast'; // Import Toast
 
-const LoginPage = () => {
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLogin, setIsLogin] = useState(true); // Toggle antara Login dan Register
   const router = useRouter();
-
-  const handleGoogleLogin = async () => {
+  
+  // Asumsi handleSignIn/handleSignUp sudah memanggil fungsi Firebase
+  const handleAuth = async (e) => {
+    e.preventDefault();
     try {
-      await signInWithGoogle();
-      // Jika sukses, fungsi akan redirect secara otomatis ke '/'
-      router.push('/'); 
-    } catch (e) {
-      // Error sudah di-log di auth.js, bisa tampilkan notifikasi jika perlu
-      console.log('User membatalkan atau terjadi error saat login.');
+      if (isLogin) {
+        await handleSignIn(email, password);
+        toast.success("Login berhasil! Selamat datang kembali."); // Notif Sukses
+        router.push('/');
+      } else {
+        await handleSignUp(email, password);
+        toast.success("Registrasi berhasil! Silakan login."); // Notif Sukses
+        setIsLogin(true); // Kembali ke halaman login
+      }
+    } catch (error) {
+      // Gunakan toast.error sebagai ganti alert()
+      toast.error(`Aksi gagal: ${error.message.split('auth/')[1]?.replace('-', ' ') || error.message}`); 
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+        await handleGoogleSignIn();
+        toast.success("Login dengan Google berhasil!"); // Notif Sukses
+        router.push('/');
+    } catch (error) {
+        toast.error(`Gagal Login Google: ${error.message}`); // Notif Gagal
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black-primary text-gray-50 p-4">
-      <div className="bg-black-primary border border-neon-purple/50 p-8 rounded-xl shadow-neon-lg max-w-sm w-full text-center">
-        <h1 className="text-4xl font-extrabold mb-2 text-neon-blue">SAFEIND</h1>
-        <p className="text-xl mb-6 text-gray-400">
-          Akses Aman Komunitas
-        </p>
-
-        {/* Tombol Login Google */}
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full bg-neon-blue text-black font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-opacity-80 transition duration-300 transform hover:scale-[1.01] flex items-center justify-center gap-3"
-        >
-          {/* Ikon Google (asumsi ada di public/assets/icon-google.svg) */}
-          <img src="/assets/icon-google.svg" alt="Google Logo" className="w-5 h-5" /> 
-          <span>Masuk dengan Google</span>
-        </button>
+    <div className="min-h-screen flex items-center justify-center bg-dark-background">
+      <div className="w-full max-w-md p-8 bg-gray-800 rounded-xl shadow-2xl">
+        <h2 className="text-3xl font-bold text-center text-primary-neon mb-6">
+          {isLogin ? 'Masuk ke SAFEIND' : 'Daftar Akun Baru'}
+        </h2>
         
-        <p className="mt-6 text-xs text-gray-600">
-          Kami hanya menggunakan Google Login untuk keamanan dan kemudahan Anda.
+        {/* Form Login/Register */}
+        <form onSubmit={handleAuth} className="space-y-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            required
+            className="w-full p-3 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-primary-neon"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            required
+            className="w-full p-3 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-primary-neon"
+          />
+          <button
+            type="submit"
+            className="w-full p-3 rounded-lg bg-primary-neon text-white font-semibold hover:bg-blue-600 transition duration-200"
+          >
+            {isLogin ? 'Masuk' : 'Daftar Sekarang'}
+          </button>
+        </form>
+
+        <div className="mt-6 space-y-3">
+          <div className="flex items-center">
+            <hr className="flex-grow border-gray-600" />
+            <span className="mx-4 text-gray-400 text-sm">ATAU</span>
+            <hr className="flex-grow border-gray-600" />
+          </div>
+
+          {/* Tombol Login Google */}
+          <button
+            onClick={signInWithGoogle}
+            type="button"
+            className="w-full p-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition duration-200 flex items-center justify-center"
+          >
+            {/* Ganti dengan ikon Google SVG jika ada */}
+            <span className="mr-2 text-xl">G</span> 
+            Masuk dengan Google
+          </button>
+        </div>
+
+        <p className="mt-6 text-center text-gray-400 text-sm">
+          {isLogin ? "Belum punya akun? " : "Sudah punya akun? "}
+          <button
+            type="button"
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-primary-neon hover:underline"
+          >
+            {isLogin ? 'Daftar di sini' : 'Masuk di sini'}
+          </button>
         </p>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
