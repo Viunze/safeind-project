@@ -1,18 +1,10 @@
 /* src/styles/globals.css */
-
-/* Lapisan dasar Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Gaya global tambahan (Contoh) */
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #1f2937; /* Background gelap agar neon terlihat */
+  background-color: #1f2937;
   color: #f3f4f6;
-}
-
-/* Utilitas kustom */
-.neon-glow {
-  text-shadow: 0 0 5px #4a90e2, 0 0 10px #4a90e2;
 }
