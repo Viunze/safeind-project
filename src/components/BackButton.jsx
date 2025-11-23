@@ -5,11 +5,11 @@ export default function BackButton({ fallbackUrl = '/' }) {
   const router = useRouter();
 
   const handleBack = () => {
-    // Kembali ke halaman sebelumnya jika riwayat tersedia
+    // Navigasi mundur jika ada riwayat browser
     if (window.history.length > 1) {
       router.back();
     } else {
-      // Jika tidak, kembali ke halaman utama
+      // Jika tidak ada riwayat, redirect ke URL fallback
       router.push(fallbackUrl);
     }
   };
