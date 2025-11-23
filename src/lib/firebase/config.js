@@ -3,26 +3,22 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
-// Hapus 'https://www.gstatic.com/' dan versi jika Anda menggunakan instalasi NPM biasa 
-// (rekomendasi untuk proyek Next.js/React).
-
-// Your web app's Firebase configuration
+// Menggunakan nilai yang Anda berikan
 const firebaseConfig = {
-    apiKey: "AIzaSyBaPUJWt_E0aDPRTsB7KhMx9gQ6MbNas5c", // Ganti dengan key Anda yang sebenarnya
-    authDomain: "lyntrix-d309a.firebaseapp.com",
-    projectId: "lyntrix-d309a",
-    storageBucket: "lyntrix-d309a.firebasestorage.app",
-    messagingSenderId: "481360999219",
-    appId: "1:481360999219:web:92a5c7097f5fe7fb1a4446",
-    measurementId: "G-ZJD7XR61WC"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 let analytics;
 
-// Pastikan analytics hanya diinisialisasi di sisi client (browser)
 if (typeof window !== 'undefined') {
+    // getAnalytics hanya dipanggil di browser (client-side)
     analytics = getAnalytics(app);
 }
 
