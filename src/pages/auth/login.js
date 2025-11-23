@@ -2,104 +2,112 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../../context/AuthContext';
-// Impor fungsi login/signup/google dari library Firebase
+import Image from 'next/image'; 
+import toast from 'react-hot-toast'; 
+
+// Import fungsi dari lib/firebase/auth (asumsi sudah ada)
 import { handleSignIn, handleSignUp, handleGoogleSignIn } from '../../lib/firebase/auth'; 
-import toast from 'react-hot-toast'; // Import Toast
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true); // Toggle antara Login dan Register
   const router = useRouter();
-  
-  // Asumsi handleSignIn/handleSignUp sudah memanggil fungsi Firebase
+
   const handleAuth = async (e) => {
     e.preventDefault();
     try {
       if (isLogin) {
         await handleSignIn(email, password);
-        toast.success("Login berhasil! Selamat datang kembali."); // Notif Sukses
+        toast.success("Login berhasil! Selamat datang."); 
         router.push('/');
       } else {
-        await handleSignUp(email, password);
-        toast.success("Registrasi berhasil! Silakan login."); // Notif Sukses
-        setIsLogin(true); // Kembali ke halaman login
+        // Asumsi handleSignUp berhasil, kembali ke halaman login
+        await handleSignUp(email, password); 
+        toast.success("Registrasi berhasil! Silakan masuk."); 
+        setIsLogin(true); 
       }
     } catch (error) {
-      // Gunakan toast.error sebagai ganti alert()
-      toast.error(`Aksi gagal: ${error.message.split('auth/')[1]?.replace('-', ' ') || error.message}`); 
+      // Menampilkan notifikasi error yang lebih bersih
+      const errorMessage = error.message.split('auth/')[1]?.replace(/[()-]/g, ' ') || "Terjadi kesalahan.";
+      toast.error(`Gagal: ${errorMessage.trim()}`); 
     }
   };
 
   const signInWithGoogle = async () => {
     try {
         await handleGoogleSignIn();
-        toast.success("Login dengan Google berhasil!"); // Notif Sukses
+        toast.success("Login dengan Google berhasil!"); 
         router.push('/');
     } catch (error) {
-        toast.error(`Gagal Login Google: ${error.message}`); // Notif Gagal
+        // Gunakan pesan error umum untuk login Google
+        toast.error("Gagal Login dengan Google. Pastikan domain Anda diizinkan di Firebase."); 
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark-background">
-      <div className="w-full max-w-md p-8 bg-gray-800 rounded-xl shadow-2xl">
-        <h2 className="text-3xl font-bold text-center text-primary-neon mb-6">
+      <div className="w-full max-w-md p-8 bg-gray-800 rounded-xl shadow-2xl border border-gray-700">
+        <h2 className="text-3xl font-extrabold text-center text-primary-neon mb-8">
           {isLogin ? 'Masuk ke SAFEIND' : 'Daftar Akun Baru'}
         </h2>
         
         {/* Form Login/Register */}
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-5">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            placeholder="Alamat Email"
             required
-            className="w-full p-3 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-primary-neon"
+            className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-primary-neon focus:border-transparent"
           />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder="Kata Sandi"
             required
-            className="w-full p-3 rounded bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-primary-neon"
+            className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-primary-neon focus:border-transparent"
           />
           <button
             type="submit"
-            className="w-full p-3 rounded-lg bg-primary-neon text-white font-semibold hover:bg-blue-600 transition duration-200"
+            className="w-full p-3 rounded-lg bg-primary-neon text-white font-bold tracking-wider hover:bg-blue-600 transition duration-200 shadow-md"
           >
             {isLogin ? 'Masuk' : 'Daftar Sekarang'}
           </button>
         </form>
 
-        <div className="mt-6 space-y-3">
+        <div className="mt-8 space-y-4">
           <div className="flex items-center">
-            <hr className="flex-grow border-gray-600" />
-            <span className="mx-4 text-gray-400 text-sm">ATAU</span>
-            <hr className="flex-grow border-gray-600" />
+            <hr className="flex-grow border-gray-700" />
+            <span className="mx-4 text-gray-500 text-sm">ATAU</span>
+            <hr className="flex-grow border-gray-700" />
           </div>
 
-          {/* Tombol Login Google */}
+          {/* Tombol Login Google DENGAN LOGO */}
           <button
             onClick={signInWithGoogle}
             type="button"
-            className="w-full p-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition duration-200 flex items-center justify-center"
+            className="w-full p-3 rounded-lg bg-white text-gray-800 font-semibold hover:bg-gray-100 transition duration-200 flex items-center justify-center border border-gray-300"
           >
-            {/* Ganti dengan ikon Google SVG jika ada */}
-            <span className="mr-2 text-xl">G</span> 
+            <Image
+                src="https://files.catbox.moe/np3lcq.webp" 
+                alt="Logo Google"
+                width={20}
+                height={20}
+                className="mr-3"
+            />
             Masuk dengan Google
           </button>
         </div>
 
-        <p className="mt-6 text-center text-gray-400 text-sm">
+        <p className="mt-8 text-center text-gray-400 text-sm">
           {isLogin ? "Belum punya akun? " : "Sudah punya akun? "}
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-primary-neon hover:underline"
+            className="text-primary-neon font-medium hover:underline focus:outline-none"
           >
             {isLogin ? 'Daftar di sini' : 'Masuk di sini'}
           </button>
