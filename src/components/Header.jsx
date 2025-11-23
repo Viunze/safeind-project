@@ -3,24 +3,21 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext'; // Import dengan kurung kurawal
 import BackButton from './BackButton';
 
 export default function Header() {
-  // Mengambil currentUser dan fungsi logout dari Context
-  const { currentUser, logout } = useAuth(); 
+  const { currentUser, logout } = useAuth(); // Ambil fungsi logout
   const router = useRouter();
   
-  // Tampilkan tombol kembali di semua halaman kecuali Home (/) dan Login
   const showBackButton = router.pathname !== '/' && router.pathname !== '/auth/login'; 
 
   const handleLogout = async () => {
     try {
-        await logout(); // Menggunakan fungsi logout dari AuthContext
+        await logout(); 
         router.push('/auth/login');
     } catch (error) {
         console.error("Gagal Logout:", error);
-        // Anda bisa menambahkan toast.error di sini jika perlu notifikasi gagal logout
     }
   };
 
@@ -31,7 +28,6 @@ export default function Header() {
         {/* Logo Safeind dan Nama Aplikasi */}
         <div className="flex items-center space-x-3">
           <Image
-            // URL logo dari files.catbox.moe
             src="https://files.catbox.moe/yu8hip.png" 
             alt="Safeind Logo"
             width={32}
@@ -47,18 +43,16 @@ export default function Header() {
         <nav className="flex items-center space-x-4">
           {currentUser ? (
             <>
-              {/* Jika user login */}
               <Link href="/profile" className="text-gray-300 hover:text-white transition text-sm">Profil</Link>
               <button onClick={handleLogout} className="text-red-400 hover:text-red-500 transition text-sm">Keluar</button>
             </>
           ) : (
-            // Jika user belum login
             <Link href="/auth/login" className="text-primary-neon hover:text-white transition text-sm font-semibold">Masuk</Link>
           )}
         </nav>
       </div>
       
-      {/* Tombol Kembali (BackButton) */}
+      {/* Tombol Kembali */}
       {showBackButton && (
         <div className="max-w-6xl mx-auto mt-2">
            <BackButton fallbackUrl="/" />
