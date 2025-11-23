@@ -5,13 +5,13 @@ import { useRouter } from 'next/router';
 import Image from 'next/image'; 
 import toast from 'react-hot-toast'; 
 
-// Import fungsi dari lib/firebase/auth (asumsi sudah ada)
+// ASUMSI: Anda sudah membuat file ini
 import { handleSignIn, handleSignUp, handleGoogleSignIn } from '../../lib/firebase/auth'; 
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true); // Toggle antara Login dan Register
+  const [isLogin, setIsLogin] = useState(true); 
   const router = useRouter();
 
   const handleAuth = async (e) => {
@@ -22,13 +22,11 @@ export default function LoginPage() {
         toast.success("Login berhasil! Selamat datang."); 
         router.push('/');
       } else {
-        // Asumsi handleSignUp berhasil, kembali ke halaman login
         await handleSignUp(email, password); 
         toast.success("Registrasi berhasil! Silakan masuk."); 
         setIsLogin(true); 
       }
     } catch (error) {
-      // Menampilkan notifikasi error yang lebih bersih
       const errorMessage = error.message.split('auth/')[1]?.replace(/[()-]/g, ' ') || "Terjadi kesalahan.";
       toast.error(`Gagal: ${errorMessage.trim()}`); 
     }
@@ -40,7 +38,6 @@ export default function LoginPage() {
         toast.success("Login dengan Google berhasil!"); 
         router.push('/');
     } catch (error) {
-        // Gunakan pesan error umum untuk login Google
         toast.error("Gagal Login dengan Google. Pastikan domain Anda diizinkan di Firebase."); 
     }
   };
@@ -52,7 +49,6 @@ export default function LoginPage() {
           {isLogin ? 'Masuk ke SAFEIND' : 'Daftar Akun Baru'}
         </h2>
         
-        {/* Form Login/Register */}
         <form onSubmit={handleAuth} className="space-y-5">
           <input
             type="email"
@@ -85,7 +81,6 @@ export default function LoginPage() {
             <hr className="flex-grow border-gray-700" />
           </div>
 
-          {/* Tombol Login Google DENGAN LOGO */}
           <button
             onClick={signInWithGoogle}
             type="button"
