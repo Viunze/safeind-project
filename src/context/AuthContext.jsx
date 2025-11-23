@@ -1,61 +1,39 @@
 // src/context/AuthContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { onAuthStateChanged, handleSignOut } from '../lib/firebase/auth'; 
-import { auth } from '../lib/firebase/config';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth'; // Asumsi Anda menggunakan firebase/auth
+import { auth } from '../lib/firebase/config'; // Asumsi path ke firebase/config Anda
 
-export const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-const unprotectedRoutes = ['/auth/login', '/', '/check/[query]']; 
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    // Subscription untuk mendengarkan perubahan status autentikasi
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
       setLoading(false);
-
-      const isProtectedRoute = !unprotectedRoutes.some(route => {
-          // Handle dynamic routes like /check/[query]
-          if (route.includes('[') && route.includes(']')) {
-              const regex = new RegExp(`^${route.replace(/\[.*\]/, '.*')}$`);
-              return regex.test(router.pathname);
-          }
-          return route === router.pathname;
-      });
-
-      if (!currentUser && isProtectedRoute && router.isReady) {
-        // Redirect jika tidak login dan di Protected Route
-        router.push('/auth/login');
-      }
-
-      if (currentUser && router.pathname === '/auth/login') {
-        // Redirect jika sudah login tapi mencoba akses login page
-        router.push('/');
-      }
     });
 
     return () => unsubscribe();
-  }, [router.pathname, router.isReady]); // Tambahkan router.isReady untuk memastikan path siap
+  }, []);
 
+  // Anda dapat menambahkan fungsi login, logout, register, dll di sini
   const value = {
-    user,
+    currentUser,
     loading,
-    signOut: handleSignOut,
+    // (Tambahkan fungsi auth dari lib/firebase/auth di sini)
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {loading && !unprotectedRoutes.includes(router.pathname) ? (
-        <div className="flex justify-center items-center min-h-screen bg-black-primary text-neon-blue">
-          <p className="animate-pulse">Memuat Data Keamanan...</p>
-        </div>
-      ) : (
-        children
-      )}
+      {/* Hanya render children setelah status autentikasi selesai dimuat */}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
