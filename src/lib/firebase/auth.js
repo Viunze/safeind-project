@@ -6,7 +6,7 @@ import {
   signInWithPopup, 
   signOut 
 } from 'firebase/auth';
-import { auth } from './config'; // Import instance auth
+import { auth } from './config'; // Mengimpor auth dari config.js
 
 // Fungsi Sign In
 export const handleSignIn = (email, password) => {
