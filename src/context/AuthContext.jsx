@@ -1,10 +1,15 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth'; // Asumsi Anda menggunakan firebase/auth
-import { auth } from '../lib/firebase/config'; // Asumsi path ke firebase/config Anda
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, handleSignOut } from '../lib/firebase/auth'; // Import auth dan signOut dari file auth.js
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({
+    currentUser: null,
+    loading: true,
+    logout: () => Promise.resolve(), // Tambahkan fungsi logout
+});
 
+// Pastikan useAuth diekspor dengan 'export const'
 export const useAuth = () => {
   return useContext(AuthContext);
 };
@@ -22,12 +27,14 @@ export const AuthProvider = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+  
+  const logout = () => handleSignOut(); // Gunakan fungsi handleSignOut dari auth.js
 
-  // Anda dapat menambahkan fungsi login, logout, register, dll di sini
   const value = {
     currentUser,
     loading,
-    // (Tambahkan fungsi auth dari lib/firebase/auth di sini)
+    logout, 
+    // Fungsi login/signup tidak perlu di sini, tapi diakses langsung dari login.js
   };
 
   return (
