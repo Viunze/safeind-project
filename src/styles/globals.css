@@ -1,0 +1,15 @@
+/* src/styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Set background default ke hitam pekat */
+body {
+  @apply bg-black-primary text-gray-50;
+  font-family: 'Inter', 'SF Pro', sans-serif;
+}
+
+/* Style Global Neon Effect */
+.neon-border {
+  @apply border border-neon-blue/50 shadow-neon-sm hover:shadow-neon-lg transition duration-300;
+}
