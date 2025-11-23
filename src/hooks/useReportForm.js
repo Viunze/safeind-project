@@ -1,16 +1,19 @@
 // src/hooks/useReportForm.js
 import { useState } from 'react';
+import { generateFileHash, applyWatermark } from '../lib/hashUtils'; 
 
 const initialFormData = {
   step: 1,
-  namaPenipu: '',
+  // Step 1: Data Dasar
   rekening: '',
   bank: '',
   nomorHP: '',
   username: '',
+  // Step 2: Bukti & Kronologi
   modus: '',
   kerugian: 0,
-  buktiFiles: [], // Array of file objects
+  buktiFiles: [], // Array of {file, name, size, hashId}
+  // Step 3: Identitas Pelaku
   ktpData: { // Data hasil OCR
     namaLengkap: '',
     nik: '',
@@ -38,14 +41,15 @@ export const useReportForm = (totalSteps = 4) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
   
-  // Khusus untuk update data KTP (dari AI OCR)
+  // Update data KTP dari AI OCR
   const setKtpData = (data) => {
       setFormData(prev => ({
           ...prev,
@@ -53,25 +57,41 @@ export const useReportForm = (totalSteps = 4) => {
       }));
   }
 
-  // Khusus untuk upload file bukti
-  const handleFileChange = (files) => {
-    // Di sini seharusnya ada proses Auto Watermark & Auto Hash ID
-    // Untuk saat ini, kita simpan file object-nya saja.
+  // Menghapus file bukti dari daftar
+  const removeFile = (hashId) => {
+      setFormData(prev => ({
+          ...prev,
+          buktiFiles: prev.buktiFiles.filter(f => f.hashId !== hashId)
+      }));
+  }
+
+  // Menambahkan file bukti dan membuat Hash ID
+  const handleFileChange = async (filesList) => {
+    const newFileObjects = [];
+
+    for (const file of filesList) {
+        // 1. Terapkan Watermark (Placeholder)
+        const watermarkedFile = applyWatermark(file); 
+        
+        // 2. Buat Hash ID (Integritas)
+        const hashId = await generateFileHash(watermarkedFile); 
+
+        newFileObjects.push({
+            file: watermarkedFile,
+            name: file.name,
+            size: file.size,
+            hashId: hashId, // Kunci integritas bukti
+        });
+    }
+
     setFormData(prev => ({
         ...prev,
-        buktiFiles: [...prev.buktiFiles, ...files]
+        buktiFiles: [...prev.buktiFiles, ...newFileObjects]
     }));
   };
 
-  const submitReport = async () => {
-    // 1. Panggil service untuk menyimpan laporan ke database (Supabase)
-    // 2. Jika sukses, arahkan ke halaman preview PDF
-    console.log("Submitting Report:", formData);
-    // Contoh: await reportService.save(formData);
-    
-    // Setelah submit, reset form:
-    // setFormData(initialFormData); 
-    return true; // Asumsi sukses
+  const resetForm = () => {
+    setFormData(initialFormData);
   };
 
   return {
@@ -79,10 +99,11 @@ export const useReportForm = (totalSteps = 4) => {
     handleChange,
     handleFileChange,
     setKtpData,
+    removeFile,
     nextStep,
     prevStep,
-    submitReport,
+    resetForm,
     isFirstStep: formData.step === 1,
-    isLastStep: formData.step === totalSteps,
+    isLastStep: formData.step === 4,
   };
 };
