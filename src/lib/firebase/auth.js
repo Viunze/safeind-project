@@ -1,46 +1,27 @@
 // src/lib/firebase/auth.js
-import { 
-    GoogleAuthProvider, 
-    signInWithPopup, 
-    onAuthStateChanged,
-    signOut 
-} from "firebase/auth";
-import { auth } from './config';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { app } from './config'; // Asumsi path ke firebase/config Anda
 
-const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('profile'); // Akses profil dasar
+// Mendapatkan instance Auth
+export const auth = getAuth(app); // Ekspor instance auth
 
-/**
- * Handles Google Sign-In using a pop-up window.
- */
-export async function signInWithGoogle() {
-    try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        
-        console.log("Login Berhasil! User:", user.displayName);
-        return user;
-    } catch (error) {
-        console.error("Login Gagal:", error.message, "Code:", error.code);
-        throw error; // Lempar error agar bisa ditangani di komponen
-    }
-}
+// Fungsi Sign In
+export const handleSignIn = (email, password) => {
+    return signInWithEmailAndPassword(auth, email, password);
+};
 
-/**
- * Handles user sign-out.
- */
-export async function handleSignOut() {
-    try {
-        await signOut(auth);
-        console.log("Logout Berhasil!");
-    } catch (error) {
-        console.error("Logout Gagal:", error.message);
-        throw error;
-    }
-}
+// Fungsi Sign Up
+export const handleSignUp = (email, password) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+};
 
-/**
- * Observer for changes in the user's sign-in state.
- * (Will be used in AuthContext)
- */
-export { onAuthStateChanged };
+// Fungsi Google Sign In
+export const handleGoogleSignIn = () => {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+};
+
+// Fungsi Sign Out
+export const handleSignOut = () => {
+    return signOut(auth);
+};
