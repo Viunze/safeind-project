@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image'; 
 import toast from 'react-hot-toast'; 
-
-// Import semua fungsi sebagai Named Export
 import { handleSignIn, handleSignUp, handleGoogleSignIn } from '../../lib/firebase/auth'; 
 
 export default function LoginPage() {
@@ -38,9 +36,11 @@ export default function LoginPage() {
         toast.success("Login dengan Google berhasil!"); 
         router.push('/');
     } catch (error) {
+        // Ini adalah error yang Anda lihat ("Pastikan domain Anda diizinkan...")
         toast.error("Gagal Login dengan Google. Pastikan domain Anda diizinkan di Firebase."); 
     }
   };
+// ... (sisa return JSX sama seperti sebelumnya)
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
