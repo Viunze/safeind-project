@@ -1,6 +1,5 @@
 // src/pages/_app.js
-
-// PASTIKAN import path ini benar
+import '../styles/globals.css';
 import { AuthProvider } from '../context/AuthContext'; 
 
 function MyApp({ Component, pageProps }) {
@@ -10,4 +9,5 @@ function MyApp({ Component, pageProps }) {
     </AuthProvider>
   );
 }
-// ...
+
+export default MyApp;
